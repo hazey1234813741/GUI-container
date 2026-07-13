@@ -1,0 +1,103 @@
+const gui = document.createElement('div');
+gui.id = 'custom-gui';
+gui.style.position = 'fixed';
+gui.style.top = '100px';
+gui.style.left = '100px';
+gui.style.width = '260px';
+gui.style.backgroundColor = '#222';
+gui.style.color = '#fff';
+gui.style.fontFamily = 'sans-serif';
+gui.style.borderRadius = '8px';
+gui.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+gui.style.zIndex = '999999';
+gui.style.userSelect = 'none';
+gui.style.overflow = 'hidden';
+
+// 2. Header / Titlebar Container (No title text, just the drag handle zone)
+const header = document.createElement('div');
+header.style.padding = '10px';
+header.style.background = '#333';
+header.style.cursor = 'move';
+header.style.display = 'flex';
+header.style.justifyContent = 'flex-end'; // Pushes buttons to the far right
+header.style.alignItems = 'center';
+header.style.borderBottom = '1px solid #444';
+header.style.height = '20px'; // Keeps the bar visible/draggable without text
+
+// 3. Window Controls Container (Minimize & Close)
+const controls = document.createElement('div');
+controls.style.display = 'flex';
+controls.style.gap = '8px';
+
+// Helper function to style header buttons
+function styleBtn(b) {
+    b.style.background = 'none';
+    b.style.border = 'none';
+    b.style.color = '#fff';
+    b.style.cursor = 'pointer';
+    b.style.fontSize = '16px';
+    b.style.padding = '0 5px';
+    b.style.lineHeight = '1';
+}
+
+const minBtn = document.createElement('button');
+minBtn.innerText = '−';
+styleBtn(minBtn);
+
+const closeBtn = document.createElement('button');
+closeBtn.innerText = '×';
+styleBtn(closeBtn);
+
+// Assemble Header
+controls.appendChild(minBtn);
+controls.appendChild(closeBtn);
+header.appendChild(controls);
+gui.appendChild(header);
+
+// 4. Empty Body Container (Put your own elements inside this)
+const body = document.createElement('div');
+body.style.padding = '15px';
+body.style.display = 'flex';
+body.style.flexDirection = 'column';
+body.style.gap = '10px';
+
+gui.appendChild(body);
+document.body.appendChild(gui);
+
+// 5. Dragging Logic for the Titlebar
+let isDragging = false;
+let offsetX, offsetY;
+
+header.addEventListener('mousedown', (e) => {
+    // Only drag if the user isn't clicking the control buttons
+    if (e.target === minBtn || e.target === closeBtn) return;
+    isDragging = true;
+    offsetX = e.clientX - gui.getBoundingClientRect().left;
+    offsetY = e.clientY - gui.getBoundingClientRect().top;
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    gui.style.left = (e.clientX - offsetX) + 'px';
+    gui.style.top = (e.clientY - offsetY) + 'px';
+});
+
+document.addEventListener('mouseup', () => isDragging = false);
+
+// 6. Minimize & Close Functionality templates
+let isMinimized = false;
+minBtn.addEventListener('click', () => {
+    if (!isMinimized) {
+        body.style.display = 'none';
+        minBtn.innerText = '+';
+        isMinimized = true;
+    } else {
+        body.style.display = 'flex';
+        minBtn.innerText = '−';
+        isMinimized = false;
+    }
+});
+
+closeBtn.addEventListener('click', () => {
+    gui.remove();
+});
